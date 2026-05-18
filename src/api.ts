@@ -3,7 +3,7 @@
  * explorer UI compiles and renders end-to-end before the chain is live.
  *
  * Real wiring: swap `MockChainApi` for a `@polkadot/api` instance once the
- * runtime metadata is stable (see plan §1.1 G2 milestone).
+ * runtime metadata is stable.
  */
 
 import { fixture } from "./fixtures";
