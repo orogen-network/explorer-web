@@ -83,7 +83,7 @@ export class PolkadotChainApi implements ChainApi {
         blockNumber,
         signer: x.isSigned ? x.signer.toString() : "",
         call: `${x.method.section}.${x.method.method}`,
-        success: failed.has(i) ? false : success.has(i) || true,
+        success: !failed.has(i),
       }));
 
       // Best-effort timestamp via timestamp.set extrinsic (always inherent #0 on Substrate).

@@ -4,10 +4,42 @@ import { getApi } from "../api";
 import type { Block } from "../api";
 
 export function Blocks(): JSX.Element {
-  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [blocks, setBlocks] = useState<Block[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    getApi().listBlocks().then(setBlocks);
+    let mounted = true;
+    const refresh = (): void => {
+      getApi()
+        .listBlocks()
+        .then((rows) => {
+          if (mounted) {
+            setBlocks(rows);
+            setError(null);
+          }
+        })
+        .catch((e: unknown) => {
+          if (mounted) {
+            setError(e instanceof Error ? e.message : String(e));
+          }
+        });
+    };
+    refresh();
+    const handle = window.setInterval(refresh, 6_000);
+    return () => {
+      mounted = false;
+      window.clearInterval(handle);
+    };
   }, []);
+
+  const list = blocks ?? [];
+  const stateLabel =
+    error !== null
+      ? `error: ${error}`
+      : blocks === null
+        ? "connecting to wss://chain.orogen.network…"
+        : `${list.length} block${list.length === 1 ? "" : "s"}`;
+
   return (
     <section>
       <div className="mb-4 flex items-end justify-between gap-4">
@@ -15,9 +47,7 @@ export function Blocks(): JSX.Element {
           <p className="heading-eyebrow">Chain head</p>
           <h2 className="mt-1 text-xl font-semibold text-crust-100">Recent blocks</h2>
         </div>
-        <span className="font-mono text-xs tabular-nums text-crust-400">
-          {blocks.length} block{blocks.length === 1 ? "" : "s"}
-        </span>
+        <span className="font-mono text-xs tabular-nums text-crust-400">{stateLabel}</span>
       </div>
       <div className="overflow-x-auto rounded-md border border-crust-700">
         <table className="prose-table">
@@ -29,7 +59,7 @@ export function Blocks(): JSX.Element {
             </tr>
           </thead>
           <tbody>
-            {blocks.map((b) => (
+            {list.map((b) => (
               <tr key={b.hash} className="transition-colors hover:bg-crust-900/40">
                 <td className="font-mono tabular-nums text-crust-100">{b.number}</td>
                 <td className="max-w-[28ch] truncate font-mono text-xs text-crust-200">
