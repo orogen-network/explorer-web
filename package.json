@@ -2,7 +2,7 @@
   "name": "explorer-web",
   "version": "0.1.0",
   "private": true,
-  "description": "Chain explorer for the LLM Mining network.",
+  "description": "Chain explorer for the Orogen network.",
   "type": "module",
   "scripts": {
     "dev": "vite",
